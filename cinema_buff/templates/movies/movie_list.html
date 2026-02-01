@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Movies - CinemaBuff{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="display-4 text-gold mb-4">
+                <i class="fas fa-film"></i> Discover Movies
+            </h1>
+            <p class="lead text-light-gold">Explore our collection of movies and find your next favorite</p>
+            {% if current_search %}
+                <p class="text-light-gold">
+                    <i class="fas fa-search"></i> Showing results for: <strong>"{{ current_search }}"</strong>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <form method="get" class="d-flex gap-2 align-items-center">
+                            <!-- Search functionality temporarily disabled -->
+                        <!-- <div class="input-group" style="max-width: 300px;">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search text-light-gold"></i>
+                                    <input type="text" name="search" class="form-control border-end-0" placeholder="Search movies by title or keyword..." value="{{ request.GET.search }}">
+                                </span>
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div> -->
+                            <select name="sort" class="form-select form-select-sm" style="width: 150px;">
+                                <option value="">All Movies</option>
+                                <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                                <option value="highest_rated" {% if current_sort == 'highest_rated' %}selected{% endif %}>Highest Rated</option>
+                                <option value="lowest_rated" {% if current_sort == 'lowest_rated' %}selected{% endif %}>Lowest Rated</option>
+                                {% if request.user.is_authenticated %}
+                                    <option value="my_ratings" {% if current_sort == 'my_ratings' %}selected{% endif %}>My Rated Movies</option>
+                                {% endif %}
+                            </select>
+                            <select name="genre" class="form-select form-select-sm" style="width: 120px;">
+                                <option value="">All Genres</option>
+                                {% for genre in genres %}
+                                    <option value="{{ genre.name }}" {% if current_genre == genre.name %}selected{% endif %}>{{ genre.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                        </form>
+                        {% if can_add_movie %}
+                            <a href="{% url 'movies:movie_create' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus-circle"></i> Add Movie
+                            </a>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'movies:movie_list' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-redo"></i> Reset Filters
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for movie in movies %}
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card h-100">
+                    {% if movie.poster %}
+                        <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-dark" style="height: 300px;">
+                            <i class="fas fa-film fa-3x text-gold"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-gold">{{ movie.title|truncatechars:30 }}</h5>
+                        <p class="card-text text-light-gold">{{ movie.synopsis|truncatewords:15 }}</p>
+                        <div class="mb-2">
+                            {% for genre in movie.genres.all %}
+                                <span class="badge bg-warning text-dark me-1">{{ genre.name }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="rating-stars">
+                                    {% if movie.average_rating > 0 %}
+                                        {% if movie.average_rating >= 1 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                        {% if movie.average_rating >= 2 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                        {% if movie.average_rating >= 3 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                        {% if movie.average_rating >= 4 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                        {% if movie.average_rating >= 5 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                        <small class="text-light-gold">({{ movie.average_rating|floatformat:1 }})</small>
+                                    {% else %}
+                                        <small class="text-light-gold">Not rated yet</small>
+                                    {% endif %}
+                                </div>
+                                <small class="text-light-gold">{{ movie.total_ratings }} ratings</small>
+                            </div>
+                            <a href="{% url 'movies:movie_detail' movie.pk %}" class="btn btn-primary btn-sm w-100">
+                                <i class="fas fa-info-circle"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="text-center">
+                    <i class="fas fa-film fa-4x text-gold mb-3"></i>
+                    <h4 class="text-gold">No movies found</h4>
+                    <p class="text-light-gold">Try adjusting your filters or check back later for new movies.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+        <nav aria-label="Movie pagination">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&sort={{ current_sort }}&genre={{ current_genre }}&search={{ current_search }}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&sort={{ current_sort }}&genre={{ current_genre }}&search={{ current_search }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&sort={{ current_sort }}&genre={{ current_genre }}&search={{ current_search }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

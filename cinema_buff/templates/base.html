@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CinemaBuff - Movie Community Platform{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gold: #FFD700;
+            --dark-gold: #B8860B;
+            --light-gold: #FFF8DC;
+            --black: #000000;
+            --dark-gray: #1a1a1a;
+            --medium-gray: #333333;
+            --light-gray: #666666;
+        }
+
+        body {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+            color: var(--light-gold);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+            border-bottom: 2px solid var(--primary-gold);
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .navbar-brand {
+            color: var(--primary-gold) !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .nav-link {
+            color: var(--light-gold) !important;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-gold) !important;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--dark-gold), var(--primary-gold));
+            border: none;
+            color: var(--black);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, var(--primary-gold), var(--dark-gold));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary-gold);
+            color: var(--primary-gold);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-gold);
+            color: var(--black);
+        }
+
+        .card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 1px solid var(--primary-gold);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .card-title {
+            color: var(--primary-gold);
+            font-weight: bold;
+        }
+
+        .form-control {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--dark-gold);
+            color: var(--light-gold);
+        }
+
+        .form-control:focus {
+            background: rgba(26, 26, 26, 0.9);
+            border-color: var(--primary-gold);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            color: var(--light-gold);
+        }
+
+        .text-gold {
+            color: var(--primary-gold);
+        }
+
+        .text-light-gold {
+            color: var(--light-gold);
+        }
+
+        .bg-dark-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(26,26,26,0.8) 100%), url('https://via.placeholder.com/1920x400');
+            background-size: cover;
+            background-position: center;
+            padding: 100px 0;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .rating-stars {
+            color: var(--primary-gold);
+        }
+
+        .footer {
+            background: linear-gradient(90deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+            border-top: 2px solid var(--primary-gold);
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        .alert {
+            border: 1px solid var(--primary-gold);
+        }
+
+        .alert-success {
+            background: rgba(184, 134, 11, 0.2);
+            color: var(--light-gold);
+        }
+
+        .alert-info {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--light-gold);
+        }
+
+        .pagination .page-link {
+            background: var(--dark-gray);
+            border: 1px solid var(--dark-gold);
+            color: var(--primary-gold);
+        }
+
+        .pagination .page-link:hover {
+            background: var(--primary-gold);
+            color: var(--black);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--primary-gold);
+            border-color: var(--primary-gold);
+            color: var(--black);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-film"></i> CinemaBuff
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'movies:movie_list' %}">
+                            <i class="fas fa-video"></i> Movies
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'communities:community_list' %}">
+                            <i class="fas fa-users"></i> Communities
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'movies:my_ratings' %}">My Ratings</a></li>
+                                <li><a class="dropdown-item" href="{% url 'movies:watchlist' %}">Watchlist</a></li>
+                                <li><a class="dropdown-item" href="{% url 'movies:favorites' %}">Favorites</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:connections' %}">Connections</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:signup' %}">
+                                <i class="fas fa-user-plus"></i> Sign Up
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="text-light-gold mb-0">
+                &copy; 2024 CinemaBuff. All rights reserved. | 
+                <i class="fas fa-film text-gold"></i> Your Movie Community Platform
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

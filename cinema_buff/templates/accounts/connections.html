@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}My Connections - CinemaBuff{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="display-4 text-gold mb-4">
+                <i class="fas fa-users"></i> My Connections
+            </h1>
+            <p class="lead text-light-gold">People you're connected with on CinemaBuff</p>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for connection in connections %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        {% if connection.to_user.profile.profile_picture %}
+                            <img src="{{ connection.to_user.profile.profile_picture.url }}" class="rounded-circle mb-3" alt="{{ connection.to_user.username }}" style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle mb-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; background: var(--dark-gray); margin: 0 auto;">
+                                <i class="fas fa-user fa-3x text-gold"></i>
+                            </div>
+                        {% endif %}
+                        <h5 class="text-gold">{{ connection.to_user.username }}</h5>
+                        <p class="text-light-gold">{{ connection.to_user.email }}</p>
+                        {% if connection.to_user.profile.bio %}
+                            <p class="text-light-gold">{{ connection.to_user.profile.bio|truncatewords:15 }}</p>
+                        {% endif %}
+                        <p class="text-muted">Connected on: {{ connection.created_at|date:"M d, Y" }}</p>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'accounts:user_profile' connection.to_user.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-user"></i> View Profile
+                            </a>
+                            <a href="{% url 'accounts:disconnect' connection.to_user.id %}" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-user-minus"></i> Disconnect
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="text-center">
+                    <i class="fas fa-users fa-4x text-gold mb-3"></i>
+                    <h4 class="text-gold">No connections yet</h4>
+                    <p class="text-light-gold">Start connecting with other movie enthusiasts to build your network!</p>
+                    <a href="{% url 'movies:movie_list' %}" class="btn btn-primary">
+                        <i class="fas fa-film"></i> Browse Movies
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

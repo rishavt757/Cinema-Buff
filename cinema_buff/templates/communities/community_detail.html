@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ community.name }} - CinemaBuff{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                {% if community.cover_image %}
+                    <img src="{{ community.cover_image.url }}" class="card-img-top" alt="{{ community.name }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top d-flex align-items-center justify-content-center bg-dark" style="height: 200px;">
+                        <i class="fas fa-users fa-3x text-gold"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body text-center">
+                    <h4 class="text-gold">{{ community.name }}</h4>
+                    <p class="text-light-gold">{{ community.description }}</p>
+                    <div class="mb-3">
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-film"></i> {{ community.genre.name }}
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <strong class="text-gold">{{ community.member_count }}</strong>
+                        <span class="text-light-gold">members</span>
+                    </div>
+                    {% if user.is_authenticated %}
+                        {% if is_member %}
+                            <a href="{% url 'communities:leave_community' community.id %}" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-minus"></i> Leave Community
+                            </a>
+                        {% else %}
+                            <a href="{% url 'communities:join_community' community.id %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Join Community
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="text-gold mb-0">
+                        <i class="fas fa-users"></i> Recent Members
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% for member in members|slice:":5" %}
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="fas fa-user text-gold fa-sm"></i>
+                            </div>
+                            <a href="{% url 'accounts:user_profile' member.user.id %}" class="text-light-gold text-decoration-none">
+                                {{ member.user.username }}
+                            </a>
+                        </div>
+                    {% empty %}
+                        <p class="text-light-gold mb-0">No members yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-gold mb-0">
+                        <i class="fas fa-film"></i> {{ community.genre.name }} Movies
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if movies %}
+                        <div class="row">
+                            {% for movie in movies %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card h-100">
+                                        {% if movie.poster %}
+                                            <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 150px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="card-img-top d-flex align-items-center justify-content-center bg-dark" style="height: 150px;">
+                                                <i class="fas fa-film fa-2x text-gold"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="card-body">
+                                            <h6 class="text-gold">{{ movie.title|truncatechars:25 }}</h6>
+                                            <div class="rating-stars">
+                                                {% if movie.average_rating > 0 %}
+                                                    {% if movie.average_rating >= 1 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                                    {% if movie.average_rating >= 2 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                                    {% if movie.average_rating >= 3 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                                    {% if movie.average_rating >= 4 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                                    {% if movie.average_rating >= 5 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                                    <small class="text-light-gold">({{ movie.average_rating|floatformat:1 }})</small>
+                                                {% else %}
+                                                    <small class="text-light-gold">Not rated</small>
+                                                {% endif %}
+                                            </div>
+                                            <a href="{% url 'movies:movie_detail' movie.pk %}" class="btn btn-outline-primary btn-sm mt-2">
+                                                <i class="fas fa-info-circle"></i> Details
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center">
+                            <i class="fas fa-film fa-3x text-gold mb-3"></i>
+                            <h5 class="text-gold">No movies in this genre yet</h5>
+                            <p class="text-light-gold">Movies will appear here as they are added to the system.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

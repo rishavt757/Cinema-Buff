@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Movie - CinemaBuff{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="display-4 text-gold mb-4">
+                <i class="fas fa-plus-circle"></i> Add New Movie
+            </h1>
+            <p class="lead text-light-gold">Share a new movie with the CinemaBuff community</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-gold mb-0">
+                        <i class="fas fa-film"></i> Movie Details
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label text-light-gold">
+                                <i class="fas fa-heading"></i> Movie Title
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger">
+                                    {{ form.title.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.synopsis.id_for_label }}" class="form-label text-light-gold">
+                                <i class="fas fa-align-left"></i> Synopsis
+                            </label>
+                            {{ form.synopsis }}
+                            {% if form.synopsis.errors %}
+                                <div class="text-danger">
+                                    {{ form.synopsis.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.release_date.id_for_label }}" class="form-label text-light-gold">
+                                <i class="fas fa-calendar"></i> Release Date
+                            </label>
+                            {{ form.release_date }}
+                            {% if form.release_date.errors %}
+                                <div class="text-danger">
+                                    {{ form.release_date.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.genres.id_for_label }}" class="form-label text-light-gold">
+                                <i class="fas fa-tags"></i> Genres
+                            </label>
+                            <div class="row">
+                                {% for genre in form.genres %}
+                                    <div class="col-md-6 mb-2">
+                                        <div class="form-check">
+                                            {{ genre.tag }}
+                                            <label class="form-check-label text-light-gold" for="{{ genre.id_for_label }}">
+                                                {{ genre.choice_label }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.genres.errors %}
+                                <div class="text-danger">
+                                    {{ form.genres.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.poster.id_for_label }}" class="form-label text-light-gold">
+                                <i class="fas fa-image"></i> Movie Poster
+                            </label>
+                            {{ form.poster }}
+                            {% if form.poster.errors %}
+                                <div class="text-danger">
+                                    {{ form.poster.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="text-light-gold">Optional: Upload a movie poster image</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Add Movie
+                            </button>
+                            <a href="{% url 'movies:movie_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-check-input:checked {
+        background-color: var(--primary-gold);
+        border-color: var(--primary-gold);
+    }
+    
+    .form-check-label {
+        margin-left: 0.5rem;
+    }
+</style>
+{% endblock %}

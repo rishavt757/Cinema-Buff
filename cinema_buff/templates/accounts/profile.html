@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - CinemaBuff{% endblock %}
+
+{% block content %}
+<style>
+.tab-pane {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.tab-pane.active {
+    display: block !important;
+    visibility: visible !important;
+    position: relative !important;
+    left: auto !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.tab-pane.show {
+    display: block !important;
+    visibility: visible !important;
+    position: relative !important;
+    left: auto !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Fix card height consistency */
+.profile-section .card {
+    min-height: 400px;
+}
+
+.favorite-genres-section .card {
+    height: 100% !important;
+    min-height: 400px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.favorite-genres-section .card-body {
+    flex: 1 !important;
+    display: block !important;
+    padding: 1rem !important;
+    overflow-wrap: break-word !important;
+    word-wrap: break-word !important;
+}
+
+.favorite-genres-section .badge {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 0.9rem !important;
+    padding: 0.5rem !important;
+}
+
+/* Fix poster container and image styling */
+.poster-container {
+    flex-shrink: 0 !important;
+    width: 80px !important;
+    height: 120px !important;
+}
+
+.movie-poster {
+    width: 80px !important;
+    height: 120px !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
+}
+
+.movie-poster-placeholder {
+    width: 80px !important;
+    height: 120px !important;
+    border-radius: 8px !important;
+}
+
+/* Tab link hover styling */
+.nav-link.bg-warning.text-dark:hover {
+    color: black !important;
+    background-color: #e0a800 !important;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all tab links and tab panes
+    const tabLinks = document.querySelectorAll('[data-bs-toggle="tab"]');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    
+    // Add click event listeners to tab links
+    tabLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs and tab panes
+            tabLinks.forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            tabPanes.forEach(function(pane) {
+                pane.classList.remove('active', 'show');
+            });
+            
+            // Add active class to clicked tab and corresponding pane
+            this.classList.add('active');
+            const targetId = this.getAttribute('href');
+            const targetPane = document.querySelector(targetId);
+            if (targetPane) {
+                targetPane.classList.add('active', 'show');
+            }
+        });
+    });
+    
+    // Initialize: ensure only first tab is active on page load
+    if (tabLinks.length > 0 && tabPanes.length > 0) {
+        // Remove active from all tabs and panes first
+        tabLinks.forEach(function(tab) {
+            tab.classList.remove('active');
+        });
+        tabPanes.forEach(function(pane) {
+            pane.classList.remove('active', 'show');
+        });
+        
+        // Set first tab as active
+        tabLinks[0].classList.add('active');
+        tabPanes[0].classList.add('active', 'show');
+    }
+});
+</script>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4 mt-3">
+            <div class="profile-section">
+                <div class="card mb-5">
+                    <div class="card-header text-center">
+                        <h4 class="text-gold mb-0">
+                            <i class="fas fa-user"></i> {{ user.username }}
+                        </h4>
+                    </div>
+                    <div class="card-body text-center">
+                        {% if user_profile.profile_picture %}
+                            <img src="{{ user_profile.profile_picture.url }}" class="rounded-circle mb-3" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle mb-3 d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; background: var(--dark-gray); margin: 0 auto;">
+                                <i class="fas fa-user fa-4x text-gold"></i>
+                            </div>
+                        {% endif %}
+                        <h5 class="text-gold">{{ user.get_full_name|default:user.username }}</h5>
+                        <p class="text-light-gold">{{ user.email }}</p>
+                        {% if user_profile.bio %}
+                            <p class="text-light-gold">{{ user_profile.bio }}</p>
+                        {% endif %}
+                        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="favorite-genres-section">
+                <div class="card mb-5">
+                    <div class="card-header">
+                        <h6 class="text-gold mb-0">
+                            <i class="fas fa-heart"></i> Favorite Genres
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if user_profile.favorite_genres.all %}
+                            {% for genre in user_profile.favorite_genres.all %}
+                                <span class="badge bg-warning text-dark m-1">{{ genre.name }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-light-gold mb-0">No favorite genres added yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card mt-3">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link bg-warning text-dark active" data-bs-toggle="tab" href="#ratings">
+                                <i class="fas fa-star"></i> My Ratings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link bg-warning text-dark" data-bs-toggle="tab" href="#reviews">
+                                <i class="fas fa-comment"></i> My Reviews
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="ratings">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-gold mb-4 mt-3">
+                                        <i class="fas fa-star"></i> My Movie Ratings
+                                        <small class="text-light-gold ms-2">({{ user.ratings.all|length }} movies rated)</small>
+                                    </h5>
+                                </div>
+                                {% if user.ratings.all %}
+                                {% for rating in user.ratings.all|slice:":6" %}
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="me-3 poster-container">
+                                                        {% if rating.movie.poster %}
+                                                            <img src="{{ rating.movie.poster.url }}" class="rounded movie-poster" alt="{{ rating.movie.title }}">
+                                                        {% else %}
+                                                            <div class="rounded bg-dark d-flex align-items-center justify-content-center movie-poster-placeholder">
+                                                                <i class="fas fa-film fa-3x text-gold"></i>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <h6 class="text-gold mb-2">{{ rating.movie.title }}</h6>
+                                                        <div class="rating-stars mb-2">
+                                                            {% if rating.score >= 1 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                                            {% if rating.score >= 2 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                                            {% if rating.score >= 3 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                                            {% if rating.score >= 4 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                                            {% if rating.score >= 5 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                                        </div>
+                                                        <small class="text-light-gold">Rated on: {{ rating.updated_at|date:"M d, Y" }}</small>
+                                                    </div>
+                                                    <div class="mt-2 d-flex flex-column gap-2">
+                                                        <a href="{% url 'movies:movie_detail' rating.movie.pk %}" class="btn btn-outline-primary btn-sm">
+                                                            <i class="fas fa-info-circle"></i> View Details
+                                                        </a>
+                                                        <a href="{% url 'movies:rate_movie' rating.movie.pk %}" class="btn btn-outline-warning btn-sm">
+                                                            <i class="fas fa-edit"></i> Update Rating
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                </div>
+                                <div class="text-center mt-4">
+                                    <a href="{% url 'movies:my_ratings' %}" class="btn btn-primary">
+                                        <i class="fas fa-list"></i> View All Ratings
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="col-12 text-center">
+                                    <div class="mb-4">
+                                        <i class="fas fa-star fa-3x text-gold mb-3"></i>
+                                    </div>
+                                    <h5 class="text-gold">No ratings yet</h5>
+                                    <p class="text-light-gold">Start rating movies to see them here!</p>
+                                    <a href="{% url 'movies:movie_list' %}" class="btn btn-primary">
+                                        <i class="fas fa-film"></i> Browse Movies
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="tab-pane fade" id="reviews">
+                            <h5 class="text-gold mt-3">My Movie Reviews</h5>
+                            {% if user.reviews.all %}
+                                {% for review in user.reviews.all|slice:":3" %}
+                                    <div class="mb-3">
+                                        <h6 class="text-gold">{{ review.movie.title }}</h6>
+                                        <p class="text-light-gold">{{ review.content|truncatewords:30 }}</p>
+                                        <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-light-gold">You haven't written any reviews yet.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="tab-pane fade" id="activity">
+                            <h5 class="text-gold">Recent Activity</h5>
+                            <p class="text-light-gold">Your recent movie activity will appear here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

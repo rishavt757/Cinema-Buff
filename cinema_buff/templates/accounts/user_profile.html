@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_user.username }}'s Profile - CinemaBuff{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h4 class="text-gold mb-0">
+                        <i class="fas fa-user"></i> {{ profile_user.username }}
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    {% if user_profile.profile_picture %}
+                        <img src="{{ user_profile.profile_picture.url }}" class="rounded-circle mb-3" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle mb-3 d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; background: var(--dark-gray); margin: 0 auto;">
+                            <i class="fas fa-user fa-4x text-gold"></i>
+                        </div>
+                    {% endif %}
+                    <h5 class="text-gold">{{ profile_user.get_full_name|default:profile_user.username }}</h5>
+                    <p class="text-light-gold">{{ profile_user.email }}</p>
+                    {% if user_profile.bio %}
+                        <p class="text-light-gold">{{ user_profile.bio }}</p>
+                    {% endif %}
+                    
+                    {% if request.user.is_authenticated and request.user != profile_user %}
+                        {% if is_connected %}
+                            <a href="{% url 'accounts:disconnect' profile_user.id %}" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-user-minus"></i> Disconnect
+                            </a>
+                        {% else %}
+                            <a href="{% url 'accounts:connect' profile_user.id %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-user-plus"></i> Connect
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="text-gold mb-0">
+                        <i class="fas fa-heart"></i> Favorite Genres
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if user_profile.favorite_genres.all %}
+                        {% for genre in user_profile.favorite_genres.all %}
+                            <span class="badge bg-warning text-dark m-1">{{ genre.name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-light-gold mb-0">No favorite genres added yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#ratings">
+                                <i class="fas fa-star"></i> Ratings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#reviews">
+                                <i class="fas fa-comment"></i> Reviews
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#stats">
+                                <i class="fas fa-chart-bar"></i> Stats
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="ratings">
+                            <h5 class="text-gold">Movie Ratings</h5>
+                            {% if profile_user.ratings.all %}
+                                <div class="row">
+                                    {% for rating in profile_user.ratings.all|slice:":6" %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    {% if rating.movie.poster %}
+                                                        <img src="{{ rating.movie.poster.url }}" class="rounded" alt="{{ rating.movie.title }}" style="width: 60px; height: 90px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="rounded bg-dark d-flex align-items-center justify-content-center" style="width: 60px; height: 90px;">
+                                                            <i class="fas fa-film text-gold"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="text-gold mb-1">{{ rating.movie.title }}</h6>
+                                                    <div class="rating-stars">
+                                                        {% if rating.score >= 1 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                                        {% if rating.score >= 2 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                                        {% if rating.score >= 3 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                                        {% if rating.score >= 4 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                                        {% if rating.score >= 5 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-light-gold">{{ profile_user.username }} hasn't rated any movies yet.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="tab-pane fade" id="reviews">
+                            <h5 class="text-gold">Movie Reviews</h5>
+                            {% if profile_user.reviews.all %}
+                                {% for review in profile_user.reviews.all|slice:":3" %}
+                                    <div class="mb-3">
+                                        <h6 class="text-gold">{{ review.movie.title }}</h6>
+                                        <p class="text-light-gold">{{ review.content|truncatewords:30 }}</p>
+                                        <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-light-gold">{{ profile_user.username }} hasn't written any reviews yet.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="tab-pane fade" id="stats">
+                            <h5 class="text-gold">Statistics</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h3 class="text-gold">{{ profile_user.ratings.count }}</h3>
+                                        <p class="text-light-gold">Movies Rated</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h3 class="text-gold">{{ profile_user.reviews.count }}</h3>
+                                        <p class="text-light-gold">Reviews Written</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h3 class="text-gold">{{ profile_user.following.count }}</h3>
+                                        <p class="text-light-gold">Connections</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

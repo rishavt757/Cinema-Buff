@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ movie.title }} - CinemaBuff{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                {% if movie.poster %}
+                    <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 450px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top d-flex align-items-center justify-content-center bg-dark" style="height: 450px;">
+                        <i class="fas fa-film fa-5x text-gold"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body text-center">
+                    {% if user.is_authenticated %}
+                        <div class="d-grid gap-2">
+                            {% if in_watchlist %}
+                                <a href="{% url 'movies:remove_from_watchlist' movie.pk %}" class="btn btn-outline-warning btn-sm">
+                                    <i class="fas fa-bookmark"></i> Remove from Watchlist
+                                </a>
+                            {% else %}
+                                <a href="{% url 'movies:add_to_watchlist' movie.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-bookmark"></i> Add to Watchlist
+                                </a>
+                            {% endif %}
+                            
+                            {% if is_favorite %}
+                                <a href="{% url 'movies:remove_from_favorites' movie.pk %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-heart"></i> Remove from Favorites
+                                </a>
+                            {% else %}
+                                <a href="{% url 'movies:add_to_favorites' movie.pk %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-heart"></i> Add to Favorites
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-gold mb-0">{{ movie.title }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="text-light-gold mb-2">
+                                <strong class="text-gold">Release Date:</strong> {{ movie.release_date|date:"F d, Y" }}
+                            </p>
+                            <div class="mb-2">
+                                <strong class="text-gold">Genres:</strong>
+                                {% for genre in movie.genres.all %}
+                                    <span class="badge bg-warning text-dark me-1">{{ genre.name }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <div class="rating-display">
+                                <h3 class="text-gold mb-2">{{ movie.average_rating|floatformat:1 }}</h3>
+                                <div class="rating-stars mb-2">
+                                    {% if movie.average_rating > 0 %}
+                                        {% if movie.average_rating >= 1 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                        {% if movie.average_rating >= 2 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                        {% if movie.average_rating >= 3 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                        {% if movie.average_rating >= 4 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                        {% if movie.average_rating >= 5 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                    {% else %}
+                                        <i class="far fa-star text-gold"></i>
+                                        <i class="far fa-star text-gold"></i>
+                                        <i class="far fa-star text-gold"></i>
+                                        <i class="far fa-star text-gold"></i>
+                                        <i class="far fa-star text-gold"></i>
+                                    {% endif %}
+                                </div>
+                                <small class="text-light-gold">{{ movie.total_ratings }} ratings</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="text-gold">Synopsis</h5>
+                        <p class="text-light-gold">{{ movie.synopsis }}</p>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="text-gold mb-0">
+                                            <i class="fas fa-star"></i> Your Rating
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if user_rating %}
+                                            <div class="text-center">
+                                                <div class="rating-stars mb-2">
+                                                    {% if user_rating.score >= 1 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                                    {% if user_rating.score >= 2 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                                    {% if user_rating.score >= 3 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                                    {% if user_rating.score >= 4 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                                    {% if user_rating.score >= 5 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
+                                                </div>
+                                                <p class="text-light-gold mb-2">You rated this {{ user_rating.score }} stars</p>
+                                                <a href="{% url 'movies:rate_movie' movie.pk %}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-edit"></i> Update Rating
+                                                </a>
+                                            </div>
+                                        {% else %}
+                                            <p class="text-light-gold text-center mb-2">You haven't rated this movie yet</p>
+                                            <div class="text-center">
+                                                <a href="{% url 'movies:rate_movie' movie.pk %}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-star"></i> Rate Movie
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="text-gold mb-0">
+                                            <i class="fas fa-comment"></i> Your Review
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if user_review %}
+                                            <h6 class="text-gold">{{ user_review.title }}</h6>
+                                            <p class="text-light-gold">{{ user_review.content|truncatewords:20 }}</p>
+                                            <a href="{% url 'movies:review_movie' movie.pk %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-edit"></i> Update Review
+                                            </a>
+                                        {% else %}
+                                            <p class="text-light-gold text-center mb-2">You haven't reviewed this movie yet</p>
+                                            <div class="text-center">
+                                                <a href="{% url 'movies:review_movie' movie.pk %}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-comment"></i> Write Review
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle"></i> 
+                            <a href="{% url 'accounts:login' %}" class="text-gold">Login</a> to rate and review this movie
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-gold mb-0">
+                        <i class="fas fa-comments"></i> User Reviews
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                            <div class="border-bottom border-gold pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="text-gold mb-1">{{ review.title }}</h6>
+                                        <p class="text-light-gold mb-1">by {{ review.user.username }}</p>
+                                    </div>
+                                    <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                                </div>
+                                <p class="text-light-gold">{{ review.content }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center">
+                            <i class="fas fa-comment-slash fa-3x text-gold mb-3"></i>
+                            <h5 class="text-gold">No reviews yet</h5>
+                            <p class="text-light-gold">Be the first to review this movie!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating-display {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(184, 134, 11, 0.1) 100%);
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid var(--dark-gold);
+    }
+    
+    .border-gold {
+        border-color: var(--dark-gold) !important;
+    }
+</style>
+{% endblock %}
