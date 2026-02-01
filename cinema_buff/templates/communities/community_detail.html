@@ -64,6 +64,67 @@
         </div>
 
         <div class="col-md-8">
+            <!-- Discussion Posts Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="text-gold mb-0">
+                        <i class="fas fa-comments"></i> Community Discussions
+                    </h4>
+                    {% if user.is_authenticated and is_member %}
+                        <a href="{% url 'communities:create_post' community.id %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> New Discussion
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if posts %}
+                        {% for post in posts %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="text-gold mb-1">
+                                            {% if post.is_pinned %}
+                                                <i class="fas fa-thumbtack text-warning me-2"></i>
+                                            {% endif %}
+                                            <a href="{% url 'communities:post_detail' post.id %}" class="text-decoration-none">
+                                                {{ post.title }}
+                                            </a>
+                                        </h6>
+                                        <p class="text-light-gold mb-2">{{ post.content|truncatewords:30 }}</p>
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <span class="me-3">
+                                                <i class="fas fa-user"></i> {{ post.author.username }}
+                                            </span>
+                                            <span class="me-3">
+                                                <i class="fas fa-comment"></i> {{ post.comment_count }} comments
+                                            </span>
+                                            <span>
+                                                <i class="fas fa-clock"></i> {{ post.created_at|timesince }} ago
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center">
+                            <i class="fas fa-comments fa-3x text-gold mb-3"></i>
+                            <h5 class="text-gold">No discussions yet</h5>
+                            <p class="text-light-gold">
+                                {% if user.is_authenticated and is_member %}
+                                    Start the first discussion in this community!
+                                {% elif user.is_authenticated %}
+                                    Join this community to start discussions.
+                                {% else %}
+                                    <a href="{% url 'accounts:signup' %}">Sign up</a> to join the conversation.
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Movies Section -->
             <div class="card">
                 <div class="card-header">
                     <h4 class="text-gold mb-0">

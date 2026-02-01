@@ -15,14 +15,51 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        <div class="mb-4">
-                            <label for="{{ form.score.id_for_label }}" class="form-label text-light-gold">Your Rating</label>
-                            {{ form.score }}
-                            {% if form.score.errors %}
-                                <div class="text-danger">{{ form.score.errors }}</div>
-                            {% endif %}
-                            <small class="text-light-gold">Select how many stars you'd give this movie</small>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Automatic Calculation:</strong> Your overall rating will be automatically calculated as the average of your three detailed scores below.
                         </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.story_score.id_for_label }}" class="form-label text-light-gold">Story/Plot</label>
+                                    {{ form.story_score }}
+                                    {% if form.story_score.errors %}
+                                        <div class="text-danger">{{ form.story_score.errors }}</div>
+                                    {% endif %}
+                                    <small class="text-light-gold">Quality of the story and plot</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.acting_score.id_for_label }}" class="form-label text-light-gold">Acting Performance</label>
+                                    {{ form.acting_score }}
+                                    {% if form.acting_score.errors %}
+                                        <div class="text-danger">{{ form.acting_score.errors }}</div>
+                                    {% endif %}
+                                    <small class="text-light-gold">Quality of acting performances</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.cinematography_score.id_for_label }}" class="form-label text-light-gold">Cinematography</label>
+                                    {{ form.cinematography_score }}
+                                    {% if form.cinematography_score.errors %}
+                                        <div class="text-danger">{{ form.cinematography_score.errors }}</div>
+                                    {% endif %}
+                                    <small class="text-light-gold">Visual quality and camera work</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-success">
+                            <i class="fas fa-calculator"></i> 
+                            <strong>Rating Scale:</strong> 1 = Poor, 5 = Average, 10 = Excellent
+                            {% if user.profile.role == 'critic' %}
+                                <br><strong>Note:</strong> As a critic, your calculated rating carries more weight in the overall average.
+                            {% endif %}
+                        </div>
+                        
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Save Rating

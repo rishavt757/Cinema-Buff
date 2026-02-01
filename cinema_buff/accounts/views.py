@@ -8,16 +8,17 @@ from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import UserProfile, UserConnection
-from .forms import UserProfileForm
+from .forms import UserProfileForm, CustomUserCreationForm
 
 class SignUpView(CreateView):
-    form_class = UserCreationForm
+    form_class = CustomUserCreationForm
     template_name = 'accounts/signup.html'
     success_url = reverse_lazy('home')
 
     def form_valid(self, form):
         response = super().form_valid(form)
         login(self.request, self.object)
+        messages.success(self.request, f"Welcome to CinemaBuff, {self.object.username}! Your account has been created successfully.")
         return response
 
 class ProfileView(LoginRequiredMixin, DetailView):

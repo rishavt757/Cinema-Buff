@@ -50,6 +50,19 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="{{ form.content_type.id_for_label }}" class="form-label text-light-gold">
+                                <i class="fas fa-film"></i> Content Type
+                            </label>
+                            {{ form.content_type }}
+                            {% if form.content_type.errors %}
+                                <div class="text-danger">
+                                    {{ form.content_type.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="text-light-gold">Is this a movie or a TV series?</small>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="{{ form.release_date.id_for_label }}" class="form-label text-light-gold">
                                 <i class="fas fa-calendar"></i> Release Date
                             </label>

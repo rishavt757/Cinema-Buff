@@ -1,0 +1,16 @@
+# Virtual environment
+cinema_buff_env/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Django
+db.sqlite3
+media/
+static/
+
+# Environment variables
+.env
+cinema_buff_env/

@@ -1,164 +1,284 @@
 {% extends 'base.html' %}
+{% load rating_tags %}
 
 {% block title %}{{ movie.title }} - CinemaBuff{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <div class="row">
+    <!-- Movie Header Section -->
+    <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card">
-                {% if movie.poster %}
-                    <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 450px; object-fit: cover;">
-                {% else %}
-                    <div class="card-img-top d-flex align-items-center justify-content-center bg-dark" style="height: 450px;">
-                        <i class="fas fa-film fa-5x text-gold"></i>
-                    </div>
-                {% endif %}
-                <div class="card-body text-center">
-                    {% if user.is_authenticated %}
-                        <div class="d-grid gap-2">
-                            {% if in_watchlist %}
-                                <a href="{% url 'movies:remove_from_watchlist' movie.pk %}" class="btn btn-outline-warning btn-sm">
-                                    <i class="fas fa-bookmark"></i> Remove from Watchlist
-                                </a>
-                            {% else %}
-                                <a href="{% url 'movies:add_to_watchlist' movie.pk %}" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-bookmark"></i> Add to Watchlist
-                                </a>
-                            {% endif %}
-                            
-                            {% if is_favorite %}
-                                <a href="{% url 'movies:remove_from_favorites' movie.pk %}" class="btn btn-outline-danger btn-sm">
-                                    <i class="fas fa-heart"></i> Remove from Favorites
-                                </a>
-                            {% else %}
-                                <a href="{% url 'movies:add_to_favorites' movie.pk %}" class="btn btn-outline-danger btn-sm">
-                                    <i class="fas fa-heart"></i> Add to Favorites
-                                </a>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="text-gold mb-0">{{ movie.title }}</h2>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p class="text-light-gold mb-2">
-                                <strong class="text-gold">Release Date:</strong> {{ movie.release_date|date:"F d, Y" }}
-                            </p>
-                            <div class="mb-2">
-                                <strong class="text-gold">Genres:</strong>
-                                {% for genre in movie.genres.all %}
-                                    <span class="badge bg-warning text-dark me-1">{{ genre.name }}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="col-md-6 text-center">
-                            <div class="rating-display">
-                                <h3 class="text-gold mb-2">{{ movie.average_rating|floatformat:1 }}</h3>
-                                <div class="rating-stars mb-2">
-                                    {% if movie.average_rating > 0 %}
-                                        {% if movie.average_rating >= 1 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
-                                        {% if movie.average_rating >= 2 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
-                                        {% if movie.average_rating >= 3 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
-                                        {% if movie.average_rating >= 4 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
-                                        {% if movie.average_rating >= 5 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
-                                    {% else %}
-                                        <i class="far fa-star text-gold"></i>
-                                        <i class="far fa-star text-gold"></i>
-                                        <i class="far fa-star text-gold"></i>
-                                        <i class="far fa-star text-gold"></i>
-                                        <i class="far fa-star text-gold"></i>
-                                    {% endif %}
-                                </div>
-                                <small class="text-light-gold">{{ movie.total_ratings }} ratings</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <h5 class="text-gold">Synopsis</h5>
-                        <p class="text-light-gold">{{ movie.synopsis }}</p>
-                    </div>
-
-                    {% if user.is_authenticated %}
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="text-gold mb-0">
-                                            <i class="fas fa-star"></i> Your Rating
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        {% if user_rating %}
-                                            <div class="text-center">
-                                                <div class="rating-stars mb-2">
-                                                    {% if user_rating.score >= 1 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
-                                                    {% if user_rating.score >= 2 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
-                                                    {% if user_rating.score >= 3 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
-                                                    {% if user_rating.score >= 4 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
-                                                    {% if user_rating.score >= 5 %}<i class="fas fa-star text-gold"></i>{% else %}<i class="far fa-star text-gold"></i>{% endif %}
-                                                </div>
-                                                <p class="text-light-gold mb-2">You rated this {{ user_rating.score }} stars</p>
-                                                <a href="{% url 'movies:rate_movie' movie.pk %}" class="btn btn-outline-primary btn-sm">
-                                                    <i class="fas fa-edit"></i> Update Rating
-                                                </a>
-                                            </div>
-                                        {% else %}
-                                            <p class="text-light-gold text-center mb-2">You haven't rated this movie yet</p>
-                                            <div class="text-center">
-                                                <a href="{% url 'movies:rate_movie' movie.pk %}" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-star"></i> Rate Movie
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="text-gold mb-0">
-                                            <i class="fas fa-comment"></i> Your Review
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        {% if user_review %}
-                                            <h6 class="text-gold">{{ user_review.title }}</h6>
-                                            <p class="text-light-gold">{{ user_review.content|truncatewords:20 }}</p>
-                                            <a href="{% url 'movies:review_movie' movie.pk %}" class="btn btn-outline-primary btn-sm">
-                                                <i class="fas fa-edit"></i> Update Review
-                                            </a>
-                                        {% else %}
-                                            <p class="text-light-gold text-center mb-2">You haven't reviewed this movie yet</p>
-                                            <div class="text-center">
-                                                <a href="{% url 'movies:review_movie' movie.pk %}" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-comment"></i> Write Review
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            {% if movie.poster %}
+                <img src="{{ movie.poster.url }}" class="img-fluid rounded" alt="{{ movie.title }}">
+            {% else %}
+                <div class="d-flex align-items-center justify-content-center bg-dark rounded" style="height: 400px;">
+                    {% if movie.content_type == 'series' %}
+                        <i class="fas fa-tv fa-5x text-gold"></i>
                     {% else %}
-                        <div class="alert alert-info text-center">
-                            <i class="fas fa-info-circle"></i> 
-                            <a href="{% url 'accounts:login' %}" class="text-gold">Login</a> to rate and review this movie
-                        </div>
+                        <i class="fas fa-film fa-5x text-gold"></i>
                     {% endif %}
                 </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h1 class="text-gold mb-0">{{ movie.title }}</h1>
+                <span class="badge bg-warning text-dark fs-6">
+                    {% if movie.content_type == 'series' %}
+                        <i class="fas fa-tv"></i> Series
+                    {% else %}
+                        <i class="fas fa-film"></i> Movie
+                    {% endif %}
+                </span>
             </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p class="text-light-gold mb-2">
+                        <strong class="text-gold">Release Date:</strong> {{ movie.release_date|date:"F d, Y" }}
+                    </p>
+                    <div class="mb-2">
+                        <strong class="text-gold">Genres:</strong>
+                        {% for genre in movie.genres.all %}
+                            <span class="badge bg-warning text-dark me-1">{{ genre.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6 text-center">
+                    <div class="rating-display">
+                        <h3 class="text-gold mb-2">{{ movie.average_rating|floatformat:1 }}/10</h3>
+                        <div class="rating-stars mb-2">
+                            {% if movie.average_rating > 0 %}
+                                {% with rating=movie.average_rating %}
+                                    {% for i in "123456789" %}
+                                        {% with star_num=i|add:"0" %}
+                                            {% if rating >= star_num %}
+                                                <span class="star full">★</span>
+                                            {% elif rating >= star_num|add:"-0.5" %}
+                                                <span class="star half">⯨</span>
+                                            {% else %}
+                                                <span class="star empty">☆</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                    {% if rating >= 9.5 %}
+                                        <span class="star full">★</span>
+                                    {% elif rating >= 9 %}
+                                        <span class="star half">⯨</span>
+                                    {% else %}
+                                        <span class="star empty">☆</span>
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <span class="no-rating">Not Rated</span>
+                            {% endif %}
+                        </div>
+                        <small class="text-light-gold">{{ movie.total_ratings }} ratings</small>
+                        
+                        {% rating_breakdown movie as breakdown %}
+                        {% if breakdown %}
+                            <div class="mt-3">
+                                <div class="row text-start">
+                                    <div class="col-6">
+                                        <small class="text-light-gold d-block">User: {{ breakdown.user_avg|floatformat:1 }}/10</small>
+                                        <small class="text-light-gold d-block">Critic: {{ breakdown.critic_avg|floatformat:1 }}/10</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-light-gold d-block">{{ breakdown.user_count }} users</small>
+                                        <small class="text-light-gold d-block">{{ breakdown.critic_count }} critics</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="text-gold">Synopsis</h5>
+                <p class="text-light-gold">{{ movie.synopsis }}</p>
+            </div>
+
+            {% if user.is_authenticated %}
+                <div class="d-flex gap-2 mb-4">
+                    {% if not in_watchlist %}
+                        <a href="{% url 'movies:add_to_watchlist' movie.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-bookmark"></i> Add to Watchlist
+                        </a>
+                    {% endif %}
+                    
+                    {% if is_favorite %}
+                        <a href="{% url 'movies:remove_from_favorites' movie.pk %}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-heart"></i> Remove from Favorites
+                        </a>
+                    {% else %}
+                        <a href="{% url 'movies:add_to_favorites' movie.pk %}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-heart"></i> Add to Favorites
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     </div>
+
+    <!-- Rating Breakdown Section -->
+    {% rating_breakdown movie as breakdown %}
+    {% if breakdown %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="text-gold mb-0">Rating Breakdown</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="rating-category">
+                                        <small class="text-light-gold">Overall</small>
+                                        <div class="rating-score">{{ breakdown.overall|floatformat:1 }}/10</div>
+                                        <div class="progress mb-2" style="height: 8px;">
+                                            <div class="progress-bar bg-warning rating-progress" data-rating="{{ breakdown.overall }}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="rating-category">
+                                        <small class="text-light-gold">Story</small>
+                                        <div class="rating-score">{{ breakdown.story|floatformat:1 }}/10</div>
+                                        <div class="progress mb-2" style="height: 8px;">
+                                            <div class="progress-bar bg-info rating-progress" data-rating="{{ breakdown.story }}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="rating-category">
+                                        <small class="text-light-gold">Acting</small>
+                                        <div class="rating-score">{{ breakdown.acting|floatformat:1 }}/10</div>
+                                        <div class="progress mb-2" style="height: 8px;">
+                                            <div class="progress-bar bg-success rating-progress" data-rating="{{ breakdown.acting }}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="rating-category">
+                                        <small class="text-light-gold">Cinematography</small>
+                                        <div class="rating-score">{{ breakdown.cinematography|floatformat:1 }}/10</div>
+                                        <div class="progress mb-2" style="height: 8px;">
+                                            <div class="progress-bar bg-primary rating-progress" data-rating="{{ breakdown.cinematography }}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="text-gold mb-0">
+                            <i class="fas fa-star"></i> Your Rating
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if user_rating %}
+                            <div class="text-center">
+                                <div class="rating-stars mb-2">
+                                    {% if user_rating.calculated_overall_score > 0 %}
+                                        {% with rating=user_rating.calculated_overall_score %}
+                                            {% for i in "123456789" %}
+                                                {% with star_num=i|add:"0" %}
+                                                    {% if rating >= star_num %}
+                                                        <span class="star full">★</span>
+                                                    {% elif rating >= star_num|add:"-0.5" %}
+                                                        <span class="star half">⯨</span>
+                                                    {% else %}
+                                                        <span class="star empty">☆</span>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endfor %}
+                                            {% if rating >= 9.5 %}
+                                                <span class="star full">★</span>
+                                            {% elif rating >= 9 %}
+                                                <span class="star half">⯨</span>
+                                            {% else %}
+                                                <span class="star empty">☆</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        <span class="no-rating">Not Rated</span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-light-gold mb-2">You rated this {{ user_rating.calculated_overall_score }}/10</p>
+                                <!-- <div class="mb-2">
+                                    <small class="text-light-gold">
+                                        Story: {{ user_rating.story_score }}/10 | 
+                                        Acting: {{ user_rating.acting_score }}/10 | 
+                                        Cinematography: {{ user_rating.cinematography_score }}/10
+                                    </small>
+                                </div> -->
+                                <a href="{% url 'movies:rate_movie' movie.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Update Rating
+                                </a>
+                            </div>
+                        {% else %}
+                            <p class="text-light-gold text-center mb-2">You haven't rated this {{ movie.content_type }} yet</p>
+                            <div class="text-center">
+                                <a href="{% url 'movies:rate_movie' movie.pk %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-star"></i> Rate {{ movie.content_type }}
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="text-gold mb-0">
+                            <i class="fas fa-comment"></i> Your Review
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if user_review %}
+                            <h6 class="text-gold">{{ user_review.title }}</h6>
+                            <p class="text-light-gold">{{ user_review.content|truncatewords:50 }}</p>
+                            <a href="{% url 'movies:review_movie' movie.pk %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i> Update Review
+                            </a>
+                        {% else %}
+                            <p class="text-light-gold text-center mb-2">You haven't reviewed this {{ movie.content_type }} yet</p>
+                            <div class="text-center">
+                                <a href="{% url 'movies:review_movie' movie.pk %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-comment"></i> Write Review
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle"></i> 
+                    <a href="{% url 'accounts:login' %}" class="text-gold">Login</a> to rate and review this {{ movie.content_type }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
 
     <div class="row mt-4">
         <div class="col-12">
@@ -206,5 +326,76 @@
     .border-gold {
         border-color: var(--dark-gold) !important;
     }
+    .rating-category {
+        margin-bottom: 10px;
+    }
+    
+    .rating-score {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--gold);
+        margin: 5px 0;
+    }
+    
+    .rating-stars .star {
+        color: var(--gold);
+        font-size: 1rem;
+        margin: 0 1px;
+    }
+    
+    .rating-stars .star.full {
+        color: var(--gold);
+    }
+    
+    .rating-stars .star.half {
+        color: var(--gold);
+        opacity: 0.7;
+    }
+    
+    .rating-stars .star.empty {
+        color: #666;
+    }
+    
+    .badge-critic {
+        background-color: var(--gold);
+        color: var(--black);
+    }
+    
+    .badge-admin {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .badge-user {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    /* Make rating and review cards consistent */
+    .row.mb-4 .col-md-3 .card,
+    .row.mb-4 .col-md-9 .card {
+        height: 100%;
+        min-height: 200px;
+    }
+    
+    .row.mb-4 .col-md-3 .card .card-body,
+    .row.mb-4 .col-md-9 .card .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 140px;
+    }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set progress bar widths based on data attributes
+    const progressBars = document.querySelectorAll('.rating-progress');
+    progressBars.forEach(bar => {
+        const rating = parseFloat(bar.getAttribute('data-rating'));
+        const percentage = (rating / 10) * 100;
+        bar.style.width = percentage + '%';
+    });
+});
+</script>
 {% endblock %}

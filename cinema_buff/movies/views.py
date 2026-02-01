@@ -4,7 +4,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.db.models import Avg, Q
-from .models import Movie, Genre, Rating, Review, Watchlist, Favorite
+from .models import Movie, Genre, Rating, Review, Watchlist, Favorite, RatingStats
 from .forms import RatingForm, ReviewForm, MovieCreateForm
 
 class MovieListView(ListView):
@@ -26,9 +26,23 @@ class MovieListView(ListView):
         
         sort_by = self.request.GET.get('sort', 'newest')
         if sort_by == 'highest_rated':
-            queryset = queryset.annotate(avg_rating=Avg('ratings__score')).order_by('-avg_rating')
+            queryset = queryset.annotate(
+                weighted_avg=Avg('ratings__overall_score')
+            ).order_by('-weighted_avg')
         elif sort_by == 'lowest_rated':
-            queryset = queryset.annotate(avg_rating=Avg('ratings__score')).order_by('avg_rating')
+            queryset = queryset.annotate(
+                weighted_avg=Avg('ratings__overall_score')
+            ).order_by('weighted_avg')
+        elif sort_by == 'critic_ratings':
+            # Sort by critic ratings (weighted more heavily)
+            queryset = queryset.annotate(
+                critic_avg=Avg('ratings__overall_score', filter=Q(ratings__user__profile__role='critic'))
+            ).order_by('-critic_avg')
+        elif sort_by == 'user_ratings':
+            # Sort by regular user ratings only
+            queryset = queryset.annotate(
+                user_avg=Avg('ratings__overall_score', filter=Q(ratings__user__profile__role='user'))
+            ).order_by('-user_avg')
         elif sort_by == 'my_ratings':
             if self.request.user.is_authenticated:
                 user_rated_movies = Rating.objects.filter(user=self.request.user).values_list('movie_id', flat=True)
@@ -67,6 +81,14 @@ class MovieDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         movie = self.get_object()
         
+        # Get rating statistics
+        try:
+            rating_stats = movie.rating_stats
+            context['rating_stats'] = rating_stats
+        except RatingStats.DoesNotExist:
+            # Initialize with zeros if no stats exist
+            context['rating_stats'] = None
+        
         if self.request.user.is_authenticated:
             context['user_rating'] = Rating.objects.filter(user=self.request.user, movie=movie).first()
             context['user_review'] = Review.objects.filter(user=self.request.user, movie=movie).first()
@@ -95,10 +117,20 @@ class RateMovieView(LoginRequiredMixin, CreateView):
         rating, created = Rating.objects.update_or_create(
             user=self.request.user,
             movie=movie,
-            defaults={'score': form.cleaned_data['score']}
+            defaults={
+                'story_score': form.cleaned_data['story_score'],
+                'acting_score': form.cleaned_data['acting_score'],
+                'cinematography_score': form.cleaned_data['cinematography_score'],
+                'overall_score': None  # Will be calculated automatically
+            }
         )
         
-        messages.success(self.request, f'You rated "{movie.title}" {rating.score} stars!')
+        # Update rating statistics
+        RatingStats.update_stats(movie)
+        
+        calculated_score = rating.calculated_overall_score
+        action = "updated" if not created else "rated"
+        messages.success(self.request, f'You {action} "{movie.title}" with a calculated score of {calculated_score}/10!')
         return redirect('movies:movie_detail', pk=movie.pk)
 
 class ReviewMovieView(LoginRequiredMixin, CreateView):

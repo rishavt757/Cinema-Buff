@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - {{ post.community.name }} - CinemaBuff{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Post -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h4 class="text-gold mb-1">
+                                {% if post.is_pinned %}
+                                    <i class="fas fa-thumbtack text-warning me-2"></i>
+                                {% endif %}
+                                {{ post.title }}
+                            </h4>
+                            <small class="text-light-gold">
+                                by <a href="{% url 'accounts:user_profile' post.author.id %}" class="text-gold">{{ post.author.username }}</a>
+                                in <a href="{% url 'communities:community_detail' post.community.id %}" class="text-gold">{{ post.community.name }}</a>
+                                • {{ post.created_at|timesince }} ago
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="text-light-gold">
+                        {{ post.content|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="text-gold mb-0">
+                        <i class="fas fa-comments"></i> Comments ({{ post.comment_count }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Add Comment Form -->
+                    {% if user.is_authenticated and is_member %}
+                        <div class="mb-4">
+                            <h6 class="text-gold mb-3">Add a Comment</h6>
+                            <form method="post" action="{% url 'communities:add_comment' post.id %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    {{ comment_form.content }}
+                                    {% if comment_form.content.errors %}
+                                        <div class="text-danger">{{ comment_form.content.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-paper-plane"></i> Post Comment
+                                </button>
+                            </form>
+                        </div>
+                    {% elif user.is_authenticated %}
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle"></i> 
+                            Join the <a href="{% url 'communities:community_detail' post.community.id %}" class="text-gold">{{ post.community.name }}</a> to participate in discussions.
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle"></i> 
+                            <a href="{% url 'accounts:signup' %}" class="text-gold">Sign up</a> to join the conversation.
+                        </div>
+                    {% endif %}
+
+                    <!-- Comments List -->
+                    {% if comments %}
+                        {% for comment in comments %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; min-width: 40px;">
+                                        <i class="fas fa-user text-gold"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div>
+                                                <a href="{% url 'accounts:user_profile' comment.author.id %}" class="text-gold text-decoration-none">
+                                                    {{ comment.author.username }}
+                                                </a>
+                                                <small class="text-light-gold ms-2">{{ comment.created_at|timesince }} ago</small>
+                                            </div>
+                                        </div>
+                                        <div class="text-light-gold">
+                                            {{ comment.content|linebreaks }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-light-gold">
+                            <i class="fas fa-comments fa-2x mb-3"></i>
+                            <p>No comments yet. Be the first to share your thoughts!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        background: rgba(26, 26, 26, 0.8);
+        border: 1px solid var(--dark-gold);
+        color: var(--light-gold);
+    }
+    
+    .form-control:focus {
+        background: rgba(26, 26, 26, 0.9);
+        border-color: var(--primary-gold);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        color: var(--light-gold);
+    }
+</style>
+{% endblock %}

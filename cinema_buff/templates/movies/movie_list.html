@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load rating_tags %}
 
 {% block title %}Movies - CinemaBuff{% endblock %}
 
@@ -39,6 +40,8 @@
                                 <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
                                 <option value="highest_rated" {% if current_sort == 'highest_rated' %}selected{% endif %}>Highest Rated</option>
                                 <option value="lowest_rated" {% if current_sort == 'lowest_rated' %}selected{% endif %}>Lowest Rated</option>
+                                <option value="critic_ratings" {% if current_sort == 'critic_ratings' %}selected{% endif %}>Critic Ratings</option>
+                                <option value="user_ratings" {% if current_sort == 'user_ratings' %}selected{% endif %}>User Ratings</option>
                                 {% if request.user.is_authenticated %}
                                     <option value="my_ratings" {% if current_sort == 'my_ratings' %}selected{% endif %}>My Rated Movies</option>
                                 {% endif %}
@@ -72,14 +75,27 @@
             <div class="col-md-4 col-lg-3 mb-4">
                 <div class="card h-100">
                     {% if movie.poster %}
-                        <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px; object-fit: cover;">
+                        <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 200px; object-fit: cover;">
                     {% else %}
-                        <div class="card-img-top d-flex align-items-center justify-content-center bg-dark" style="height: 300px;">
-                            <i class="fas fa-film fa-3x text-gold"></i>
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-dark" style="height: 200px;">
+                            {% if movie.content_type == 'series' %}
+                                <i class="fas fa-tv fa-3x text-gold"></i>
+                            {% else %}
+                                <i class="fas fa-film fa-3x text-gold"></i>
+                            {% endif %}
                         </div>
                     {% endif %}
                     <div class="card-body d-flex flex-column">
-                        <h5 class="card-title text-gold">{{ movie.title|truncatechars:30 }}</h5>
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title text-gold mb-0">{{ movie.title|truncatechars:30 }}</h5>
+                            <span class="badge bg-warning text-dark">
+                                {% if movie.content_type == 'series' %}
+                                    <i class="fas fa-tv"></i> Series
+                                {% else %}
+                                    <i class="fas fa-film"></i> Movie
+                                {% endif %}
+                            </span>
+                        </div>
                         <p class="card-text text-light-gold">{{ movie.synopsis|truncatewords:15 }}</p>
                         <div class="mb-2">
                             {% for genre in movie.genres.all %}
@@ -90,12 +106,14 @@
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="rating-stars">
                                     {% if movie.average_rating > 0 %}
-                                        {% if movie.average_rating >= 1 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
-                                        {% if movie.average_rating >= 2 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
-                                        {% if movie.average_rating >= 3 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
-                                        {% if movie.average_rating >= 4 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
-                                        {% if movie.average_rating >= 5 %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
-                                        <small class="text-light-gold">({{ movie.average_rating|floatformat:1 }})</small>
+                                        {% with rating_5=movie.average_rating %}
+                                            {% if rating_5 >= 2 %}<span class="star full">★</span>{% else %}<span class="star empty">☆</span>{% endif %}
+                                            {% if rating_5 >= 4 %}<span class="star full">★</span>{% else %}<span class="star empty">☆</span>{% endif %}
+                                            {% if rating_5 >= 6 %}<span class="star full">★</span>{% else %}<span class="star empty">☆</span>{% endif %}
+                                            {% if rating_5 >= 8 %}<span class="star full">★</span>{% else %}<span class="star empty">☆</span>{% endif %}
+                                            {% if rating_5 >= 10 %}<span class="star full">★</span>{% else %}<span class="star empty">☆</span>{% endif %}
+                                        {% endwith %}
+                                        <small class="text-light-gold">({{ movie.average_rating|floatformat:1 }}/10)</small>
                                     {% else %}
                                         <small class="text-light-gold">Not rated yet</small>
                                     {% endif %}
