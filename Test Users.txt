@@ -1,0 +1,6 @@
+Username        Password
+admin           admin123
+Critic-1	Critic-1123
+Critic-2	Critic-2123
+TestUser-1	TestUser-1123
+TestUser-2	TestUser-2123

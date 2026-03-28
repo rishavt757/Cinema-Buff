@@ -126,7 +126,6 @@ prometheus-client==0.16.0
 prompt-toolkit==3.0.38
 protobuf==3.20.3
 psutil==5.9.5
-psycopg2==2.9.10
 psycopg2-binary==2.9.10
 pure-eval==0.2.2
 pybloom-live==4.0.0
@@ -148,8 +147,6 @@ python-json-logger==2.0.7
 python-slugify==8.0.1
 python-socketio==5.10.0
 pytz==2023.3
-pywin32==306
-pywinpty==2.0.10
 PyYAML==6.0
 pyzipper==0.3.6
 pyzmq==25.0.2

@@ -11,6 +11,7 @@ db.sqlite3
 media/
 static/
 
-# Environment variables
+# Environment variables and test user logins
 .env
 cinema_buff_env/
+.txt
