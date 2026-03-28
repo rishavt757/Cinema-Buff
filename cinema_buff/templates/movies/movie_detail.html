@@ -9,7 +9,7 @@
     <div class="row mb-4">
         <div class="col-md-4">
             {% if movie.poster %}
-                <img src="{{ movie.poster.url }}" class="img-fluid rounded" alt="{{ movie.title }}">
+                <img src="{{ movie.poster.url }}" class="img-fluid rounded" alt="{{ movie.title }}" style="max-height: 500px; object-fit: contain; background-color: #1a1a1a;">
             {% else %}
                 <div class="d-flex align-items-center justify-content-center bg-dark rounded" style="height: 400px;">
                     {% if movie.content_type == 'series' %}
